@@ -26,11 +26,30 @@ end
 
 %% Residuals
 for ii = 1:num_files
+    % Calculate the residuals (the difference between the experimental data
+    % and the data predicted from the model
     res = v_exp{ii} - v_mod{ii};
     residual{ii} = res;
     
-    avg{ii} = mean(res);
-    std_dev{ii} = std(res);
+    % Calculate the mean and standard deviation of the residuals to
+    % determine outliers
+    avg = mean(res);
+    average{ii} = avg; % store in cell array
+
+    std_dev = std(res);
+    standard_deviation{ii} = std_dev; % store in cell array
+
+    % Remove the outliers
+    non_outliers_logic = (res - avg) < (2 * std_dev);
+    res_no_outlier = res(non_outliers_logic);
+    residual_no_outlier{ii} = res_no_outlier; % store in cell array
+    
+    % Recalculate mean and standard deviation without outliers
+    average_no_outlier{ii} = mean(res_no_outlier);
+    standard_deviation_no_outlier{ii} = std(res_no_outlier); % store in cell array
+
+    % Uncertainty
+    sigma_v_mod{ii} = Crankshaft_Error(d,r,l,theta_exp{ii},w_exp{ii},sigma);
 end
 
 %% Plotting
@@ -63,6 +82,14 @@ for ii = 1:num_files
     xlabel("Time [s]");
     ylabel("Differential Vertical Velocity [cm/s]");
     title(['Residual vs Time: ',voltage_str,'V']);
+
+    % Error Bar
+    figure(); grid minor;
+    errorbar(t_exp{ii},residual{ii},sigma_v_mod{ii});
+    xlabel("Time [s]");
+    ylabel("Differential Vertical Velocity [cm/s]");
+    title(['Residual vs Time with Uncertainty: ',voltage_str,'V']);
+
 end
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
@@ -110,6 +137,7 @@ function [v_mod] = LCSMODEL(r, d, l, theta, w)
 %
 %   Outputs:    v_mod             -   collar vertical speed [cm/s]
 %
+
 % Calculate angle of arm, beta in degrees
 beta = asind( (d - r .* sind(theta)) ./ l );
 % Calculate velocity of collar
