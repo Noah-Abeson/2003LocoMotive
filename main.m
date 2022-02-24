@@ -53,6 +53,8 @@ for ii = 1:num_files
 end
 
 %% Plotting
+M = zeros([num_files,5]); % matrix for table for results later
+
 for ii = 1:num_files
     
     % Vertical Velocity
@@ -71,7 +73,8 @@ for ii = 1:num_files
     else
         integer = str2num(voltage(1));
     end
-    voltage_str = num2str(integer + 0.5);
+    voltage_int = integer + 0.5;
+    voltage_str = num2str(voltage_int);
 
     title(['Velocity vs Angle: ',voltage_str,'V']);
     legend("Experimental", "Model");
@@ -90,7 +93,19 @@ for ii = 1:num_files
     ylabel("Differential Vertical Velocity [cm/s]");
     title(['Residual vs Time with Uncertainty: ',voltage_str,'V']);
 
+    % AVG/STD Residual Table
+    M(ii,1) = voltage_int;
+    M(ii,2) = average{ii};
+    M(ii,3) = standard_deviation{ii};
+    M(ii,4) = average_no_outlier{ii};
+    M(ii,5) = standard_deviation_no_outlier{ii};
+
 end
+
+M = array2table(M);
+M.Properties.VariableNames(1:5) = {'Voltage (V)', 'Average (cm/s)', 'Standard Deviation (cm/s)', 'Average without outliers [cm/s]', 'Standard Deviation without outliers(cm/s)'};
+
+writetable(M,"stats.xlsx");
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
 %LCSDATA Reads in raw data file and outputs manipulated angular position and velocity of disk and vertical speed of collar.
