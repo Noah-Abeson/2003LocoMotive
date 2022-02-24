@@ -26,7 +26,11 @@ end
 
 %% Residuals
 for ii = 1:num_files
-    residual{ii} = v_exp{ii} - v_mod{ii};
+    res = v_exp{ii} - v_mod{ii};
+    residual{ii} = res;
+    
+    avg{ii} = mean(res);
+    std_dev{ii} = std(res);
 end
 
 %% Plotting
@@ -38,7 +42,19 @@ for ii = 1:num_files
     plot(theta_exp{ii},v_mod{ii}); % Model
     xlabel("Angular Position \theta [°]");
     ylabel("Vertical Velocity [cm/s]");
-    title(files{ii},"Interpreter","none");
+
+    % Convert filename to voltage string for the title
+    filename = files{ii};
+    fprintf("%s\n",filename);
+    voltage = filename(7:9);
+    if voltage(2) ~= 'p'
+        integer = str2num(voltage(1:2));
+    else
+        integer = str2num(voltage(1));
+    end
+    voltage_str = num2str(integer + 0.5);
+
+    title(['Velocity vs Angle: ',voltage_str,'V']);
     legend("Experimental", "Model");
 
     % Residuals
@@ -46,7 +62,7 @@ for ii = 1:num_files
     plot(t_exp{ii},residual{ii})
     xlabel("Time [s]");
     ylabel("Differential Vertical Velocity [cm/s]");
-    title(files{ii},"Interpreter","none");
+    title(['Residual vs Time: ',voltage_str,'V']);
 end
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
