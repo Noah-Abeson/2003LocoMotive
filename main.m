@@ -99,13 +99,40 @@ for ii = 1:num_files
     M(ii,3) = standard_deviation{ii};
     M(ii,4) = average_no_outlier{ii};
     M(ii,5) = standard_deviation_no_outlier{ii};
-
 end
 
 M = array2table(M);
 M.Properties.VariableNames(1:5) = {'Voltage (V)', 'Average (cm/s)', 'Standard Deviation (cm/s)', 'Average without outliers [cm/s]', 'Standard Deviation without outliers(cm/s)'};
 
 writetable(M,"stats.xlsx");
+
+% SUBPLOTS
+% Velocity vs Angle
+figure();
+for ii = 1:num_files
+    subplot(2,3,ii);
+    
+    hold on; grid minor;
+    plot(theta_exp{ii},v_exp{ii}); % Experimental
+    plot(theta_exp{ii},v_mod{ii}); % Model
+    xlabel("Angular Position \theta [°]");
+    ylabel("Vertical Velocity [cm/s]");
+
+    % Voltage title
+    filename = files{ii};
+    voltage = filename(7:9);
+    if voltage(2) ~= 'p'
+        integer = str2num(voltage(1:2));
+    else
+        integer = str2num(voltage(1));
+    end
+    voltage_int = integer + 0.5;
+    voltage_str = num2str(voltage_int);
+
+    title([voltage_str,'V']);
+    legend("Experimental", "Model");
+end
+sgtitle('Collar Velocity vs Angle');
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
 %LCSDATA Reads in raw data file and outputs manipulated angular position and velocity of disk and vertical speed of collar.
