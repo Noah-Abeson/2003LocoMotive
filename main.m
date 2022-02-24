@@ -97,5 +97,5 @@ function [v_mod] = LCSMODEL(r, d, l, theta, w)
 % Calculate angle of arm, beta in degrees
 beta = asind( (d - r .* sind(theta)) ./ l );
 % Calculate velocity of collar
-v_mod = 100 .* (deg2rad(w) .* r) .* (-sind(theta) + cosd(theta) .* tand(beta));
+v_mod = 100 .* (deg2rad(w) .* r) .* (-sind(theta) - cosd(theta) .* tand(beta));
 end
