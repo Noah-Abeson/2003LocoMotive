@@ -133,6 +133,31 @@ for ii = 1:num_files
     legend("Experimental", "Model");
 end
 sgtitle('Collar Velocity vs Angle');
+
+% Velocity vs Angle
+figure();
+for ii = 1:num_files
+    subplot(2,3,ii);
+
+    % Voltage title
+    filename = files{ii};
+    voltage = filename(7:9);
+    if voltage(2) ~= 'p'
+        integer = str2num(voltage(1:2));
+    else
+        integer = str2num(voltage(1));
+    end
+    voltage_int = integer + 0.5;
+    voltage_str = num2str(voltage_int);
+
+
+    plot(t_exp{ii},residual{ii})
+    xlabel("Time [s]");
+    ylabel("Differential Vertical Velocity [cm/s]");
+
+    title([voltage_str,'V']);
+end
+sgtitle('Residual vs Time');
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
 %LCSDATA Reads in raw data file and outputs manipulated angular position and velocity of disk and vertical speed of collar.
