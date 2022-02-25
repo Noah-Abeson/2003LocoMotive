@@ -99,6 +99,13 @@ for ii = 1:num_files
     M(ii,3) = standard_deviation{ii};
     M(ii,4) = average_no_outlier{ii};
     M(ii,5) = standard_deviation_no_outlier{ii};
+    
+    % Error Residual Graphed
+    figure();
+    plot(theta_exp{ii},sigma_v_mod{ii});
+    xlabel("Angular Position \theta [°]");
+    ylabel("Uncertainty in Vertical Velocity [cm/s]");
+    title(['Residual vs Time with Uncertainty: ',getVoltageStr(files{ii})]);
 end
 
 M = array2table(M);
@@ -158,6 +165,19 @@ for ii = 1:num_files
     title([voltage_str,'V']);
 end
 sgtitle('Residual vs Time');
+
+% Error Visualization
+figure();
+for ii = 1:num_files
+    subplot(2,3,ii);
+
+    grid minor;
+    plot(theta_exp{ii},sigma_v_mod{ii});
+    xlabel("Angular Position \theta [°]");
+    ylabel("Uncertainty in Vertical Velocity [cm/s]");
+    title(['Residual vs Time with Uncertainty: ',getVoltageStr(files{ii})]);
+end
+sgtitle('Uncertainty vs Angle');
 %% Function: LCSDATA
 function [theta_exp,w_exp,v_exp,t_exp] = LCSDATA(filename)
 %LCSDATA Reads in raw data file and outputs manipulated angular position and velocity of disk and vertical speed of collar.
@@ -209,4 +229,16 @@ function [v_mod] = LCSMODEL(r, d, l, theta, w)
 beta = asind( (d - r .* sind(theta)) ./ l );
 % Calculate velocity of collar
 v_mod = 100 .* (deg2rad(w) .* r) .* (-sind(theta) - cosd(theta) .* tand(beta));
+end
+%% Function: getVoltageStr
+function voltage_str = getVoltageStr(filename)
+% Test1_5pt5V -> 5.5V
+voltage = filename(7:9);
+if voltage(2) ~= 'p'
+    integer = str2num(voltage(1:2));
+else
+    integer = str2num(voltage(1));
+end
+voltage_int = integer + 0.5;
+voltage_str = [num2str(voltage_int),'V'];
 end
